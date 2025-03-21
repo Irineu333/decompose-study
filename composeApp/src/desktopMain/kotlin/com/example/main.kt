@@ -8,6 +8,8 @@ import androidx.compose.ui.window.rememberWindowState
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.decompose.extensions.compose.lifecycle.LifecycleController
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
+import com.example.app.App
+import com.example.app.DefaultAppComponent
 
 fun main() {
 

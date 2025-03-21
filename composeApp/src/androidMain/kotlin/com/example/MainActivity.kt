@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.arkivanov.decompose.defaultComponentContext
+import com.example.app.App
+import com.example.app.DefaultAppComponent
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
