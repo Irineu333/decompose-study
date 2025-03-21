@@ -35,6 +35,10 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
+
+            // decompose
+            implementation("com.arkivanov.decompose:decompose:3.3.0")
+            implementation("com.arkivanov.decompose:extensions-compose:3.3.0")
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
