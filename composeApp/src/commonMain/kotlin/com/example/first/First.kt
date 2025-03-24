@@ -1,12 +1,11 @@
 package com.example.first
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Button
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -14,33 +13,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun First(
     component: FirstComponent,
+) = Column(
+    modifier = Modifier.fillMaxSize(),
+    horizontalAlignment = Alignment.CenterHorizontally,
+    verticalArrangement = Arrangement.spacedBy(
+        space = 8.dp,
+        alignment = Alignment.CenterVertically
+    )
 ) {
-    val items by component.items.subscribeAsState()
+    val name by component.name.subscribeAsState()
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(count = 3),
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(items) { item ->
-            Card(
-                onClick = {
-                    component.onItemClicked(item = item)
-                }
-            ) {
-                Box(
-                    modifier = Modifier.aspectRatio(ratio = 1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = item)
-                }
-            }
+    TextField(
+        label = {
+            Text(text = "What is your name?")
+        },
+        value = name,
+        onValueChange = {
+            component.onChangeName(it)
         }
+    )
+
+    Button(
+        onClick = {
+            component.navigateToSecond()
+        },
+        enabled = name.isNotBlank()
+    ) {
+        Text(text = "Say Hello")
     }
 }

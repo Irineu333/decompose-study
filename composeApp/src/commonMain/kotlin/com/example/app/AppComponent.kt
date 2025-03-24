@@ -29,10 +29,10 @@ class DefaultAppComponent(
         serializer = Config.serializer(),
         initialConfiguration = Config.First,
         handleBackButton = true,
-        childFactory = ::child,
+        childFactory = ::childFactory,
     )
 
-    private fun child(
+    private fun childFactory(
         config: Config,
         context: ComponentContext
     ): AppComponent.Child = when (config) {
@@ -40,8 +40,8 @@ class DefaultAppComponent(
             AppComponent.Child.First(
                 DefaultFirstComponent(
                     context = context,
-                    onItemSelected = {
-                        navigation.pushNew(Config.Second(it))
+                    navigateToSecond = { name ->
+                        navigation.pushNew(Config.Second(name))
                     }
                 )
             )
@@ -51,7 +51,7 @@ class DefaultAppComponent(
             AppComponent.Child.Second(
                 DefaultSecondComponent(
                     context = context,
-                    item = config.item
+                    name = config.name
                 )
             )
         }
@@ -63,6 +63,6 @@ class DefaultAppComponent(
         data object First : Config
 
         @Serializable
-        data class Second(val item: String) : Config
+        data class Second(val name: String) : Config
     }
 }

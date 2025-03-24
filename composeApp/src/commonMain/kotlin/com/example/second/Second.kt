@@ -16,7 +16,7 @@ fun Second(
     modifier = Modifier.fillMaxSize(),
     contentAlignment = Alignment.Center
 ) {
-    val item by component.item.subscribeAsState()
+    val item by component.text.subscribeAsState()
 
     Text(text = item)
 }

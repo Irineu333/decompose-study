@@ -5,12 +5,12 @@ import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 
 interface SecondComponent {
-    val item: Value<String>
+    val text: Value<String>
 }
 
 class DefaultSecondComponent(
     context: ComponentContext,
-    item: String
+    name: String
 ) : SecondComponent, ComponentContext by context {
-    override val item = MutableValue(item)
+    override val text = MutableValue(initialValue = "Hello, $name!")
 }

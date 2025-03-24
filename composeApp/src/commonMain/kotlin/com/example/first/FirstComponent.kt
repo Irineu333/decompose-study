@@ -5,21 +5,25 @@ import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 
 interface FirstComponent {
-    val items: Value<List<String>>
+    val name: Value<String>
 
-    fun onItemClicked(item: String)
+    fun onChangeName(text: String)
+    fun navigateToSecond()
 }
 
 class DefaultFirstComponent(
     context: ComponentContext,
-    private val onItemSelected: (item: String) -> Unit,
+    private val navigateToSecond: (name: String) -> Unit,
 ) : FirstComponent, ComponentContext by context {
 
-    override val items = MutableValue(
-        initialValue = List(size = 100) { "Item $it" }
-    )
+    private val _name = MutableValue(initialValue = "")
+    override val name = _name
 
-    override fun onItemClicked(item: String) {
-        onItemSelected(item)
+    override fun onChangeName(text: String) {
+        _name.value = text
+    }
+
+    override fun navigateToSecond() {
+        navigateToSecond(name.value)
     }
 }
