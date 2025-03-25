@@ -24,7 +24,7 @@ class DefaultFirstComponent(
         ).orEmpty()
     )
 
-    override val name = _name
+    override val name: Value<String> = _name
 
     init {
         stateKeeper.register(

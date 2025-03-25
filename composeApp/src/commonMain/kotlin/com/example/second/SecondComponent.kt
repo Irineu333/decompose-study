@@ -1,6 +1,7 @@
 package com.example.second
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
@@ -8,7 +9,14 @@ import com.arkivanov.decompose.value.subscribe
 import com.arkivanov.decompose.value.update
 import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.arkivanov.essenty.instancekeeper.getOrCreate
+import com.example.second.SecondComponent.UiState
 import kotlinx.coroutines.*
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlin.random.Random
 
 interface SecondComponent {
@@ -29,38 +37,55 @@ class DefaultSecondComponent(
 
     private val colorAnimationWorker =
         instanceKeeper.getOrCreate {
-            ColorAnimationWorker()
+            ColorAnimationWorker(
+                initialColor = stateKeeper.consume(
+                    key = COLOR_KEY,
+                    strategy = ColorSerializer
+                ) ?: Color.Black
+            )
         }
 
     private val _uiState = MutableValue(
-        initialValue = SecondComponent.UiState(
+        initialValue = UiState(
             text = name,
             color = colorAnimationWorker.color.value
         )
     )
 
-    override val uiState = _uiState
+    override val uiState: Value<UiState> = _uiState
 
     init {
         colorAnimationWorker.color.subscribe(
             lifecycle = lifecycle
         ) { color ->
-            uiState.update {
+            _uiState.update {
                 it.copy(
                     color = color
                 )
             }
         }
+
+        stateKeeper.register(
+            key = COLOR_KEY,
+            strategy = ColorSerializer,
+            supplier = {
+                colorAnimationWorker.color.value
+            }
+        )
     }
 
-    override fun startColorAnimation() { colorAnimationWorker() }
+    override fun startColorAnimation() {
+        colorAnimationWorker()
+    }
 
-    class ColorAnimationWorker : InstanceKeeper.Instance {
+    class ColorAnimationWorker(
+        initialColor: Color = Color.Black
+    ) : InstanceKeeper.Instance {
 
         private val coroutine = CoroutineScope(Dispatchers.Default)
         private var job: Job? = null
 
-        val color = MutableValue(Color.Black)
+        val color = MutableValue(initialColor)
 
         operator fun invoke() {
             job = coroutine.launch {
@@ -72,7 +97,9 @@ class DefaultSecondComponent(
             }
         }
 
-        override fun onDestroy() { coroutine.cancel() }
+        override fun onDestroy() {
+            coroutine.cancel()
+        }
 
         private fun colorRandom(): Color {
             return Color(
@@ -82,5 +109,29 @@ class DefaultSecondComponent(
                 alpha = 255
             )
         }
+    }
+
+    companion object {
+        private const val COLOR_KEY = "COLOR_KEY"
+    }
+}
+
+object ColorSerializer : KSerializer<Color> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
+        serialName = "my.app.Color",
+        kind = PrimitiveKind.STRING
+    )
+
+    override fun serialize(encoder: Encoder, value: Color) {
+        val string = value.toArgb()
+            .toString(radix = 16)
+            .padStart(length = 6, padChar = '0')
+
+        encoder.encodeString(string)
+    }
+
+    override fun deserialize(decoder: Decoder): Color {
+        val string = decoder.decodeString()
+        return Color(string.toInt(radix = 16))
     }
 }
